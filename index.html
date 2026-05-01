@@ -4,198 +4,402 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>in'dex hair | パーソナル髪質・骨格・心理診断</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@300;600&display=swap" rel="stylesheet">
+  
   <style>
-    :root { --accent: #d89689; --line: #06C755; --text: #333; --bg: #fff; --gray: #f8f8f8; }
+    :root {
+      --accent: #d89689;      /* くすみピンク（ブランド色） */
+      --text: #333333;        /* メインテキスト */
+      --bg: #ffffff;          /* 基本背景 */
+      --bg-soft: #fdfaf8;     /* 診断結果用背景 */
+      --line: #06C755;        /* LINEカラー */
+      --gray: #f2f2f2;        /* 境界線やサブ背景 */
+    }
+
     * { box-sizing: border-box; }
-    body { font-family: "serif", "Hiragino Mincho ProN", serif; color: var(--text); margin: 0; background: var(--bg); }
 
-    #app { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    body {
+      font-family: 'Noto Serif JP', serif;
+      color: var(--text);
+      margin: 0;
+      background: var(--bg);
+      line-height: 1.8;
+      overflow-x: hidden;
+    }
 
-    /* 質問・導入カード */
-    .card { width: 100%; max-width: 480px; text-align: center; display: none; animation: fadeIn 0.8s ease; }
+    /* レイアウトコンテナ */
+    .app-wrapper {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* カードの基本アニメーション */
+    .card {
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      display: none;
+      animation: fadeInUp 0.8s ease forwards;
+    }
+
     .card.active { display: block; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-    .step-num { font-size: 0.7rem; letter-spacing: 3px; color: #aaa; margin-bottom: 20px; text-transform: uppercase; }
-    h1, h2 { font-weight: 400; line-height: 1.6; margin-bottom: 30px; }
-    h1 { font-size: 1.6rem; letter-spacing: 2px; }
-    h2 { font-size: 1.3rem; }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-    .intro-text { font-size: 0.9rem; line-height: 2; margin-bottom: 30px; color: #666; }
+    /* 共通見出し */
+    .step-num {
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: #aaa;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+    }
+
+    h1 { font-size: 1.6rem; letter-spacing: 0.1em; line-height: 1.6; margin-bottom: 30px; }
+    h2 { font-size: 1.3rem; letter-spacing: 0.05em; font-weight: 300; margin-bottom: 40px; }
 
     /* ボタンデザイン */
-    .btn-list { list-style: none; padding: 0; }
+    .btn-list { list-style: none; padding: 0; margin: 0; }
+    
     .ans-btn, .start-btn {
-      width: 100%; padding: 20px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 4px; 
-      background: none; cursor: pointer; transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; color: var(--text);
-    }
-    .start-btn { background: var(--text); color: #fff; border: none; font-weight: bold; }
-    .ans-btn:hover { background: var(--gray); border-color: var(--accent); }
-
-    /* 結果画面 */
-    .result { display: none; padding: 60px 20px; background: #fdfaf8; text-align: center; }
-    .res-container { max-width: 500px; margin: 0 auto; }
-    .style-name { font-size: 1.6rem; margin-bottom: 10px; font-weight: bold; color: #000; }
-    .menu-tag { display: inline-block; padding: 4px 12px; background: var(--accent); color: #fff; font-size: 0.75rem; margin-bottom: 25px; border-radius: 2px; }
-
-    .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
-    .img-box { text-align: center; }
-    .img-box img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 2px; background: #eee; }
-    .img-box span { display: block; font-size: 0.65rem; margin-top: 8px; color: #aaa; font-weight: bold; }
-
-    .insight-bubble { 
-      background: #fff; padding: 25px; border-radius: 8px; font-size: 0.85rem; line-height: 1.8; 
-      border-left: 5px solid var(--accent); text-align: left; margin-bottom: 35px; box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+      width: 100%;
+      padding: 22px 20px;
+      margin-bottom: 15px;
+      border: 1px solid #eee;
+      background: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 0.95rem;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      font-family: inherit;
     }
 
-    /* 予約エリア */
-    .cta-area { background: #fff; padding: 30px 20px; border-radius: 8px; border: 1px solid #eee; }
-    .cta-msg { font-size: 0.8rem; margin-bottom: 15px; color: #888; }
-    .line-link { 
-      display: flex; align-items: center; justify-content: center; background: var(--line); 
-      color: #fff; text-decoration: none; padding: 20px; border-radius: 4px; font-weight: bold; font-size: 1rem;
+    .start-btn {
+      background: var(--text);
+      color: #fff;
+      border: none;
+      font-weight: 600;
+      margin-top: 10px;
     }
-    .line-link i { margin-right: 10px; }
+
+    .ans-btn:hover {
+      background: var(--bg-soft);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    /* 導入文 */
+    .intro-text {
+      font-size: 0.9rem;
+      line-height: 2.2;
+      color: #666;
+      margin-bottom: 40px;
+      text-align: center;
+    }
+
+    /* 分析中演出 */
+    .loader-wrap { text-align: center; }
+    .pulse {
+      width: 12px; height: 12px; background: var(--accent); border-radius: 50%;
+      display: inline-block; margin: 0 4px; animation: pulse 1.4s infinite ease-in-out;
+    }
+    .pulse:nth-child(2) { animation-delay: 0.2s; }
+    .pulse:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes pulse { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+    /* 結果表示エリア */
+    .result-screen {
+      display: none;
+      width: 100%;
+      max-width: 500px;
+      background: var(--bg-soft);
+      padding: 60px 25px;
+      text-align: center;
+    }
+
+    .style-name { font-size: 1.7rem; font-weight: 600; margin-bottom: 10px; color: #000; }
+    .menu-tag {
+      display: inline-block;
+      padding: 4px 15px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.8rem;
+      border-radius: 2px;
+      margin-bottom: 30px;
+    }
+
+    .insight-box {
+      background: #fff;
+      padding: 25px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      line-height: 2;
+      text-align: left;
+      border-left: 6px solid var(--accent);
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.03);
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-bottom: 40px;
+    }
+
+    .img-card { position: relative; }
+    .img-card img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+    .img-card span {
+      display: block;
+      font-size: 0.7rem;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #999;
+      letter-spacing: 0.1em;
+    }
+
+    /* CTAエリア */
+    .cta-container {
+      background: #fff;
+      padding: 35px 20px;
+      border-radius: 15px;
+      border: 1px solid #eee;
+    }
+    .cta-hint { font-size: 0.8rem; color: #888; margin-bottom: 20px; line-height: 1.6; }
+    
+    .line-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--line);
+      color: #fff;
+      text-decoration: none;
+      padding: 20px;
+      border-radius: 50px;
+      font-weight: bold;
+      font-size: 1.1rem;
+      transition: 0.3s;
+    }
+    .line-button:hover { opacity: 0.9; transform: scale(1.02); }
+
+    .retry-link {
+      display: inline-block;
+      margin-top: 25px;
+      color: #aaa;
+      text-decoration: underline;
+      font-size: 0.8rem;
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* スマホ調整 */
+    @media (max-width: 480px) {
+      h1 { font-size: 1.3rem; }
+      h2 { font-size: 1.1rem; }
+      .ans-btn { padding: 18px 15px; font-size: 0.9rem; }
+    }
   </style>
 </head>
 <body>
 
-<div id="app">
-  <!-- START -->
-  <div class="card active" id="start">
-    <div class="step-num">Personal Counseling</div>
-    <h1>30秒で導き出す<br>あなたを解放する「処方箋」</h1>
+<div class="app-wrapper" id="app-content">
+  
+  <div class="card active" id="start-card">
+    <div class="step-num">index hair counseling</div>
+    <h1>30秒で導き出す<br>あなただけの「光の処方箋」</h1>
     <p class="intro-text">
-      今の悩み、なりたい印象、そして心。 <br>
-      プロの視点で分析し、 <br>
-      あなただけの最適解を提案します。
+      今の悩み、なりたい印象、そして心。<br>
+      鏡を見たときの小さな違和感を、<br>
+      プロの視点で「確信」に変える診断です。<br>
+      いくつかの問いの先に、新しいあなたが待っています。
     </p>
-    <button class="start-btn" onclick="next('start', 'q1')">カウンセリングを開始する</button>
-    <p style="font-size:0.7rem; color:#bbb; margin-top:15px;">※所要時間約30秒 / 無理な勧誘は一切ありません</p>
+    <button class="start-btn" onclick="navigateTo('start-card', 'q1')">カウンセリングをはじめる</button>
+    <p style="font-size: 0.7rem; color: #bbb; margin-top: 20px;">※所要時間 約30秒 / 無理な勧誘はありません</p>
   </div>
 
-  <!-- Q1: 質感 -->
   <div class="card" id="q1">
-    <div class="step-num">Step 01</div>
-    <h2>今の髪の状態を例えるなら？</h2>
+    <div class="step-num">Scene 01</div>
+    <h2>もし、今の自分の髪を<br>「質感」で例えるなら？</h2>
     <div class="btn-list">
-      <button class="ans-btn" onclick="save('q1', 'dry', 'q2')">少し乾いた、ざらつく質感</button>
-      <button class="ans-btn" onclick="save('q1', 'flat', 'q2')">柔らかく、頼りない質感</button>
-      <button class="ans-btn" onclick="save('q1', 'hard', 'q2')">強くて、しなやかさに欠ける質感</button>
+      <button class="ans-btn" onclick="saveAnswer('texture', 'dry', 'q1', 'q2')">少し乾いた、ざらつく質感</button>
+      <button class="ans-btn" onclick="saveAnswer('texture', 'flat', 'q1', 'q2')">柔らかく、頼りない質感</button>
+      <button class="ans-btn" onclick="saveAnswer('texture', 'hard', 'q1', 'q2')">強くて、しなやかさに欠ける質感</button>
     </div>
   </div>
 
-  <!-- Q2: 悩み -->
   <div class="card" id="q2">
-    <div class="step-num">Step 02</div>
-    <h2>一番解決したいポイントは？</h2>
+    <div class="step-num">Scene 02</div>
+    <h2>鏡を見たとき、<br>一番解決したいポイントは？</h2>
     <div class="btn-list">
-      <button class="ans-btn" onclick="save('q2', 'face', 'q3')">頬のライン、顔の余白を隠したい</button>
-      <button class="ans-btn" onclick="save('q2', 'top', 'q3')">全体のボリューム、寂しい印象</button>
-      <button class="ans-btn" onclick="save('q2', 'end', 'q3')">毛先のパサつき、まとまりのなさ</button>
+      <button class="ans-btn" onclick="saveAnswer('concern', 'face', 'q2', 'q3')">頬のライン、顔の余白を隠したい</button>
+      <button class="ans-btn" onclick="saveAnswer('concern', 'top', 'q2', 'q3')">全体のボリューム、寂しい印象</button>
+      <button class="ans-btn" onclick="saveAnswer('concern', 'end', 'q2', 'q3')">毛先のパサつき、まとまりのなさ</button>
     </div>
   </div>
 
-  <!-- Q3-Q5（簡略化して進行） -->
   <div class="card" id="q3">
-    <div class="step-num">Step 03</div>
-    <h2>理想の雰囲気は？</h2>
-    <button class="ans-btn" onclick="next('q3', 'q4')">凛とした、清潔感のある女性</button>
-    <button class="ans-btn" onclick="next('q3', 'q4')">柔らかく、親しみやすい女性</button>
+    <div class="step-num">Scene 03</div>
+    <h2>新しい自分に出会うなら、<br>どんな風を纏いたい？</h2>
+    <div class="btn-list">
+      <button class="ans-btn" onclick="navigateTo('q3', 'q4')">凛としていて、清潔感のある風</button>
+      <button class="ans-btn" onclick="navigateTo('q3', 'q4')">柔らかく、包み込むような風</button>
+      <button class="ans-btn" onclick="navigateTo('q3', 'q4')">都会的で、洗練された風</button>
+    </div>
   </div>
+
   <div class="card" id="q4">
-    <div class="step-num">Step 04</div>
-    <h2>普段のスタイリング時間は？</h2>
-    <button class="ans-btn" onclick="next('q4', 'q5')">5分以内で済ませたい</button>
-    <button class="ans-btn" onclick="next( 'q4', 'q5')">アイロン等でしっかり作りたい</button>
+    <div class="step-num">Scene 04</div>
+    <h2>朝、髪に触れる時間は<br>あなたにとってどんな時間？</h2>
+    <div class="btn-list">
+      <button class="ans-btn" onclick="navigateTo('q4', 'q5')">格闘して、妥協する時間</button>
+      <button class="ans-btn" onclick="navigateTo('q4', 'q5')">ただ流れる、作業の時間</button>
+      <button class="ans-btn" onclick="navigateTo('q4', 'q5')">自信を、丁寧に作る時間</button>
+    </div>
   </div>
+
   <div class="card" id="q5">
-    <div class="step-num">Final Step</div>
-    <h2>サロンで一番期待することは？</h2>
-    <button class="ans-btn" onclick="showResult()">圧倒的なツヤと指通り</button>
-    <button class="ans-btn" onclick="showResult()">自分でも再現できるカット</button>
+    <div class="step-num">Final Scene</div>
+    <h2>in'dex hairの扉を開けたとき、<br>一番に手に入れたいものは？</h2>
+    <div class="btn-list">
+      <button class="ans-btn" onclick="processAnalysis()">周囲がハッとする「ツヤ」</button>
+      <button class="ans-btn" onclick="processAnalysis()">自分を好きになれる「小顔」</button>
+      <button class="ans-btn" onclick="processAnalysis()">何もしなくても決まる「解放」</button>
+    </div>
   </div>
 </div>
 
-<!-- RESULT -->
-<div id="result" class="result">
+<div id="result-screen" class="result-screen">
   <div class="res-container">
-    <div class="step-num">Result</div>
-    <div class="style-name" id="res-title"></div>
-    <div class="menu-tag" id="res-menu"></div>
+    <div class="step-num">Counseling Result</div>
+    <div class="style-name" id="res-style-name"></div>
+    <div class="menu-tag" id="res-menu-name"></div>
 
-    <div class="insight-bubble" id="res-insight"></div>
+    <div class="insight-box" id="res-insight"></div>
 
-    <div class="gallery">
-      <div class="img-box"><img src="https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?q=80&w=400"><span>BEFORE</span></div>
-      <div class="img-box"><img src="https://images.unsplash.com/photo-1595476108010-b4d1f8c2b1b1?q=80&w=400"><span>AFTER</span></div>
+    <div class="gallery-grid">
+      <div class="img-card">
+        <img src="https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?q=80&w=400" alt="Before">
+        <span>BEFORE (深層の悩み)</span>
+      </div>
+      <div class="img-card">
+        <img src="https://images.unsplash.com/photo-1595476108010-b4d1f8c2b1b1?q=80&w=400" alt="After">
+        <span>AFTER (理想の解放)</span>
+      </div>
     </div>
 
-    <div class="cta-area">
-      <p class="cta-msg">「診断結果を見ました」と伝えていただくと<br>カウンセリングがスムーズです</p>
-      <a href="https://line.me" class="line-link">
-        このスタイルで予約・相談する
+    <div class="cta-container">
+      <p class="cta-hint">
+        <strong>【ご予約方法】</strong><br>
+        この画面のスクリーンショットをLINEで送っていただくと、当日スムーズなカウンセリングが可能です。
+      </p>
+      <a href="https://line.me/R/ti/p/@ご自身のID" class="line-button">
+        この診断結果で相談・予約する
       </a>
-      <button onclick="location.reload()" style="background:none; border:none; color:#aaa; margin-top:20px; cursor:pointer; text-decoration:underline;">もう一度診断する</button>
     </div>
+    
+    <button class="retry-link" onclick="location.reload()">もう一度診断を受ける</button>
   </div>
 </div>
 
 <script>
-  let log = { q1: '', q2: '' };
+  // 回答ログ
+  let userLog = {
+    texture: '',
+    concern: ''
+  };
 
-  function next(curr, next) {
-    document.getElementById(curr).classList.remove('active');
-    document.getElementById(next).classList.add('active');
+  // 画面遷移関数
+  function navigateTo(currentId, nextId) {
+    document.getElementById(currentId).classList.remove('active');
+    document.getElementById(nextId).classList.add('active');
   }
 
-  function save(q, val, nxt) {
-    log[q] = val;
-    next(q, nxt);
+  // 回答保存
+  function saveAnswer(key, value, currentId, nextId) {
+    userLog[key] = value;
+    navigateTo(currentId, nextId);
   }
 
-  function showResult() {
-    const app = document.getElementById('app');
-    app.innerHTML = `<div class="card active"><div class="step-num">Analyzing</div><h2>骨格・髪質・心境の<br>マトリックスを解析中...</h2></div>`;
+  // 分析フェーズ
+  function processAnalysis() {
+    const wrapper = document.getElementById('app-content');
+    // 没入感を出すためのローディング画面
+    wrapper.innerHTML = `
+      <div class="card active loader-wrap">
+        <div class="step-num">Analyzing...</div>
+        <h2>あなたの髪質・骨格・心境の<br>マトリックスを読み解いています</h2>
+        <div class="pulse"></div><div class="pulse"></div><div class="pulse"></div>
+      </div>
+    `;
 
     setTimeout(() => {
-      app.style.display = 'none';
-      const result = document.getElementById('result');
-      
-      // 実務的な分岐ロジック（Q1×Q2）
-      const pattern = `${log.q1}-${log.q2}`;
-      const dataSet = {
-        'dry-face': {
-          title: "艶ヴェール × 骨格補正ボブ",
-          menu: "髪質改善トリートメント + 小顔補正カット",
-          insight: "乾燥による広がりでぼやけがちな輪郭を、潤いのヴェールとシャープな毛先のラインで引き締めます。横顔に自信が持てる、あなた専用の黄金比スタイルです。"
-        },
-        'dry-end': {
-          title: "シルキーグロス × レイヤースタイル",
-          menu: "高純度酸熱トリートメント + 質感調整カット",
-          insight: "バラバラに主張する毛先を内部から整えます。指を通すたびに幸福感を感じるツヤと、風に揺れる軽やかなレイヤーで、清潔感を最大化します。"
-        },
-        'flat-top': {
-          title: "根元リフト × 3Dショート",
-          menu: "プリカール（根元パーマ）+ 立体カット",
-          insight: "トップの寂しさを解消するために、根元から立ち上がるパーマを処方。視線を上に誘導し、若々しく華やかな印象へ。お手入れも乾かすだけで決まります。"
-        },
-        'hard-face': {
-          title: "ソフト質感 × ニュアンスレイヤー",
-          menu: "髪質軟化ストレート + 顔周りレイヤー",
-          insight: "強い髪質を活かしつつ、カットで『隙間』を作ることで柔らかい風を通します。都会的で洗練された、頑張りすぎない大人の余裕を演出します。"
-        }
-      };
+      renderResult();
+    }, 2000); // 2秒の溜め
+  }
 
-      const res = dataSet[pattern] || dataSet['dry-face'];
+  // 結果描画ロジック (Q1×Q2のマトリックス)
+  function renderResult() {
+    const app = document.getElementById('app-content');
+    const result = document.getElementById('result-screen');
+    
+    app.style.display = 'none';
+    result.style.display = 'block';
 
-      document.getElementById('res-title').innerText = res.title;
-      document.getElementById('res-menu').innerText = res.menu;
-      document.getElementById('res-insight').innerHTML = `<strong>【分析レポート】</strong><br>${res.insight}`;
-      
-      result.style.display = 'block';
-    }, 1500);
+    const title = document.getElementById('res-style-name');
+    const menu = document.getElementById('res-menu-name');
+    const insight = document.getElementById('res-insight');
+
+    // 診断データのマトリックス
+    const matrix = {
+      'dry-face': {
+        title: "艶ヴェール × 骨格補正ボブ",
+        menu: "髪質改善トリートメント + 小顔補正カット",
+        text: "乾燥で広がり、ぼやけがちだったフェイスラインを、潤いのヴェールとシャープなカットラインで引き締めます。横顔に圧倒的な自信を与える、あなただけの黄金比ボブです。"
+      },
+      'dry-end': {
+        title: "シルキーグロス × レイヤースタイル",
+        menu: "高純度酸熱ケア + 質感調整カット",
+        text: "バラバラに主張していた毛先のパサつきを内部から補修。指を通すたびに幸福感を感じるツヤと、風に揺れる軽やかな毛先の動きが、あなたの清潔感を最大化させます。"
+      },
+      'flat-top': {
+        title: "根元リフト × 3Dボリュームショート",
+        menu: "プリカール（根元パーマ）+ 立体カット",
+        text: "ペタンとしやすいトップに、空気のクッションを作る根元パーマを処方。視線を上に誘導し、若々しく華やかな印象へ。朝の準備も『乾かすだけ』で決まる解放感を約束します。"
+      },
+      'hard-face': {
+        title: "軟化ストレート × ニュアンスレイヤー",
+        menu: "髪質軟化ケア + 顔周りデザインカット",
+        text: "強すぎる髪質をあえて活かしつつ、カットで『隙間』を作ることで柔らかい風を通します。都会的で洗練された、頑張りすぎない大人の余裕を感じさせるスタイルです。"
+      }
+      // 他の組み合わせも同様に追加可能
+    };
+
+    // ログからキーを作成（texture-concern）
+    const key = `${userLog.texture}-${userLog.concern}`;
+    const data = matrix[key] || matrix['dry-face']; // 見つからない場合はデフォルトを表示
+
+    title.innerText = data.title;
+    menu.innerText = data.menu;
+    insight.innerHTML = `<strong>【分析レポート】</strong><br>${data.text}`;
+    
+    window.scrollTo(0, 0);
   }
 </script>
+
 </body>
 </html>
