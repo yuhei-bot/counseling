@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>in'dex hair | パーソナル髪質・骨格・心理診断</title>
+  <style>
+    :root { --accent: #d89689; --line: #06C755; --text: #333; --bg: #fff; --gray: #f8f8f8; }
+    * { box-sizing: border-box; }
+    body { font-family: "serif", "Hiragino Mincho ProN", serif; color: var(--text); margin: 0; background: var(--bg); }
+
+    #app { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+
+    /* 質問・導入カード */
+    .card { width: 100%; max-width: 480px; text-align: center; display: none; animation: fadeIn 0.8s ease; }
+    .card.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    .step-num { font-size: 0.7rem; letter-spacing: 3px; color: #aaa; margin-bottom: 20px; text-transform: uppercase; }
+    h1, h2 { font-weight: 400; line-height: 1.6; margin-bottom: 30px; }
+    h1 { font-size: 1.6rem; letter-spacing: 2px; }
+    h2 { font-size: 1.3rem; }
+
+    .intro-text { font-size: 0.9rem; line-height: 2; margin-bottom: 30px; color: #666; }
+
+    /* ボタンデザイン */
+    .btn-list { list-style: none; padding: 0; }
+    .ans-btn, .start-btn {
+      width: 100%; padding: 20px; margin-bottom: 12px; border: 1px solid #eee; border-radius: 4px; 
+      background: none; cursor: pointer; transition: 0.3s; font-size: 0.9rem; letter-spacing: 1px; color: var(--text);
+    }
+    .start-btn { background: var(--text); color: #fff; border: none; font-weight: bold; }
+    .ans-btn:hover { background: var(--gray); border-color: var(--accent); }
+
+    /* 結果画面 */
+    .result { display: none; padding: 60px 20px; background: #fdfaf8; text-align: center; }
+    .res-container { max-width: 500px; margin: 0 auto; }
+    .style-name { font-size: 1.6rem; margin-bottom: 10px; font-weight: bold; color: #000; }
+    .menu-tag { display: inline-block; padding: 4px 12px; background: var(--accent); color: #fff; font-size: 0.75rem; margin-bottom: 25px; border-radius: 2px; }
+
+    .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 30px 0; }
+    .img-box { text-align: center; }
+    .img-box img { width: 100%; aspect-ratio: 3/4; object-fit: cover; border-radius: 2px; background: #eee; }
+    .img-box span { display: block; font-size: 0.65rem; margin-top: 8px; color: #aaa; font-weight: bold; }
+
+    .insight-bubble { 
+      background: #fff; padding: 25px; border-radius: 8px; font-size: 0.85rem; line-height: 1.8; 
+      border-left: 5px solid var(--accent); text-align: left; margin-bottom: 35px; box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+    }
+
+    /* 予約エリア */
+    .cta-area { background: #fff; padding: 30px 20px; border-radius: 8px; border: 1px solid #eee; }
+    .cta-msg { font-size: 0.8rem; margin-bottom: 15px; color: #888; }
+    .line-link { 
+      display: flex; align-items: center; justify-content: center; background: var(--line); 
+      color: #fff; text-decoration: none; padding: 20px; border-radius: 4px; font-weight: bold; font-size: 1rem;
+    }
+    .line-link i { margin-right: 10px; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- START -->
+  <div class="card active" id="start">
+    <div class="step-num">Personal Counseling</div>
+    <h1>30秒で導き出す<br>あなたを解放する「処方箋」</h1>
+    <p class="intro-text">
+      今の悩み、なりたい印象、そして心。 <br>
+      プロの視点で分析し、 <br>
+      あなただけの最適解を提案します。
+    </p>
+    <button class="start-btn" onclick="next('start', 'q1')">カウンセリングを開始する</button>
+    <p style="font-size:0.7rem; color:#bbb; margin-top:15px;">※所要時間約30秒 / 無理な勧誘は一切ありません</p>
+  </div>
+
+  <!-- Q1: 質感 -->
+  <div class="card" id="q1">
+    <div class="step-num">Step 01</div>
+    <h2>今の髪の状態を例えるなら？</h2>
+    <div class="btn-list">
+      <button class="ans-btn" onclick="save('q1', 'dry', 'q2')">少し乾いた、ざらつく質感</button>
+      <button class="ans-btn" onclick="save('q1', 'flat', 'q2')">柔らかく、頼りない質感</button>
+      <button class="ans-btn" onclick="save('q1', 'hard', 'q2')">強くて、しなやかさに欠ける質感</button>
+    </div>
+  </div>
+
+  <!-- Q2: 悩み -->
+  <div class="card" id="q2">
+    <div class="step-num">Step 02</div>
+    <h2>一番解決したいポイントは？</h2>
+    <div class="btn-list">
+      <button class="ans-btn" onclick="save('q2', 'face', 'q3')">頬のライン、顔の余白を隠したい</button>
+      <button class="ans-btn" onclick="save('q2', 'top', 'q3')">全体のボリューム、寂しい印象</button>
+      <button class="ans-btn" onclick="save('q2', 'end', 'q3')">毛先のパサつき、まとまりのなさ</button>
+    </div>
+  </div>
+
+  <!-- Q3-Q5（簡略化して進行） -->
+  <div class="card" id="q3">
+    <div class="step-num">Step 03</div>
+    <h2>理想の雰囲気は？</h2>
+    <button class="ans-btn" onclick="next('q3', 'q4')">凛とした、清潔感のある女性</button>
+    <button class="ans-btn" onclick="next('q3', 'q4')">柔らかく、親しみやすい女性</button>
+  </div>
+  <div class="card" id="q4">
+    <div class="step-num">Step 04</div>
+    <h2>普段のスタイリング時間は？</h2>
+    <button class="ans-btn" onclick="next('q4', 'q5')">5分以内で済ませたい</button>
+    <button class="ans-btn" onclick="next( 'q4', 'q5')">アイロン等でしっかり作りたい</button>
+  </div>
+  <div class="card" id="q5">
+    <div class="step-num">Final Step</div>
+    <h2>サロンで一番期待することは？</h2>
+    <button class="ans-btn" onclick="showResult()">圧倒的なツヤと指通り</button>
+    <button class="ans-btn" onclick="showResult()">自分でも再現できるカット</button>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result" class="result">
+  <div class="res-container">
+    <div class="step-num">Result</div>
+    <div class="style-name" id="res-title"></div>
+    <div class="menu-tag" id="res-menu"></div>
+
+    <div class="insight-bubble" id="res-insight"></div>
+
+    <div class="gallery">
+      <div class="img-box"><img src="https://images.unsplash.com/photo-1582095133179-bfd08e2fc6b3?q=80&w=400"><span>BEFORE</span></div>
+      <div class="img-box"><img src="https://images.unsplash.com/photo-1595476108010-b4d1f8c2b1b1?q=80&w=400"><span>AFTER</span></div>
+    </div>
+
+    <div class="cta-area">
+      <p class="cta-msg">「診断結果を見ました」と伝えていただくと<br>カウンセリングがスムーズです</p>
+      <a href="https://line.me" class="line-link">
+        このスタイルで予約・相談する
+      </a>
+      <button onclick="location.reload()" style="background:none; border:none; color:#aaa; margin-top:20px; cursor:pointer; text-decoration:underline;">もう一度診断する</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let log = { q1: '', q2: '' };
+
+  function next(curr, next) {
+    document.getElementById(curr).classList.remove('active');
+    document.getElementById(next).classList.add('active');
+  }
+
+  function save(q, val, nxt) {
+    log[q] = val;
+    next(q, nxt);
+  }
+
+  function showResult() {
+    const app = document.getElementById('app');
+    app.innerHTML = `<div class="card active"><div class="step-num">Analyzing</div><h2>骨格・髪質・心境の<br>マトリックスを解析中...</h2></div>`;
+
+    setTimeout(() => {
+      app.style.display = 'none';
+      const result = document.getElementById('result');
+      
+      // 実務的な分岐ロジック（Q1×Q2）
+      const pattern = `${log.q1}-${log.q2}`;
+      const dataSet = {
+        'dry-face': {
+          title: "艶ヴェール × 骨格補正ボブ",
+          menu: "髪質改善トリートメント + 小顔補正カット",
+          insight: "乾燥による広がりでぼやけがちな輪郭を、潤いのヴェールとシャープな毛先のラインで引き締めます。横顔に自信が持てる、あなた専用の黄金比スタイルです。"
+        },
+        'dry-end': {
+          title: "シルキーグロス × レイヤースタイル",
+          menu: "高純度酸熱トリートメント + 質感調整カット",
+          insight: "バラバラに主張する毛先を内部から整えます。指を通すたびに幸福感を感じるツヤと、風に揺れる軽やかなレイヤーで、清潔感を最大化します。"
+        },
+        'flat-top': {
+          title: "根元リフト × 3Dショート",
+          menu: "プリカール（根元パーマ）+ 立体カット",
+          insight: "トップの寂しさを解消するために、根元から立ち上がるパーマを処方。視線を上に誘導し、若々しく華やかな印象へ。お手入れも乾かすだけで決まります。"
+        },
+        'hard-face': {
+          title: "ソフト質感 × ニュアンスレイヤー",
+          menu: "髪質軟化ストレート + 顔周りレイヤー",
+          insight: "強い髪質を活かしつつ、カットで『隙間』を作ることで柔らかい風を通します。都会的で洗練された、頑張りすぎない大人の余裕を演出します。"
+        }
+      };
+
+      const res = dataSet[pattern] || dataSet['dry-face'];
+
+      document.getElementById('res-title').innerText = res.title;
+      document.getElementById('res-menu').innerText = res.menu;
+      document.getElementById('res-insight').innerHTML = `<strong>【分析レポート】</strong><br>${res.insight}`;
+      
+      result.style.display = 'block';
+    }, 1500);
+  }
+</script>
+</body>
+</html>
